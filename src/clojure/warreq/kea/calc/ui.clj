@@ -1,11 +1,5 @@
 (ns warreq.kea.calc.ui
-  (:require [neko.activity :refer [defactivity set-content-view!]]
-            [neko.resource :as res]
-            [neko.ui :as ui]
-            [neko.debug :refer [*a]]
-            [warreq.kea.calc.calc :refer [num-handler op-handler]]))
-
-(res/import-all)
+  (:require [warreq.kea.calc.calc :refer [num-handler op-handler]]))
 
 (def row-attributes
   {:orientation :horizontal
@@ -43,7 +37,6 @@
            [(get op-column i)]))
         (range 3))
    [[:linear-layout row-attributes
-
      (button-element "RET" op-handler)
      (button-element 0 num-handler)
      (button-element "." num-handler)
