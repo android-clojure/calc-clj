@@ -1,11 +1,23 @@
 (ns warreq.kea.calc.calc
   (:require [neko.notify :refer [toast]]))
 
+(def operand (atom ""))
+
+(def partial (atom 0))
+
 (defn num-handler
   [n]
   (toast (str n)))
 
 (defn op-handler
+  [n]
+  (toast (str n)))
+
+(defn clear-handler
+  [n]
+  (toast (str n)))
+
+(defn invert-handler
   [n]
   (toast (str n)))
 
