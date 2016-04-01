@@ -27,6 +27,11 @@
     "×" *
     (resolve (symbol op))))
 
+(defn return-handler
+  [_]
+  (swap! expression conj (read-string (deref input)))
+  (reset! input ""))
+
 (defn num-handler
   [n]
   (swap! input str n))
@@ -54,7 +59,4 @@
       (reset! input (.substring cur 1 (.length cur)))
       (reset! input (str "-" cur)))))
 
-(defn return-handler
-  [_]
-  (swap! expression conj (read-string (deref input)))
-  (reset! input ""))
+
