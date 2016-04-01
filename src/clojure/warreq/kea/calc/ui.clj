@@ -19,6 +19,14 @@
    :layout-height 0
    :layout-weight 1})
 
+(defn display-element
+  [id]
+  [:text-view {:id id
+               :text-size 37.0
+               :layout-height 60
+               :gravity :right
+               :layout-width :fill}])
+
 (defn button-element
   "builds a button element for a given value and handler"
   [value handler]
@@ -36,12 +44,8 @@
 (def main-layout
   (concat
    [:linear-layout {:orientation :vertical}
-    [:text-view {:id ::y
-                 :layout-height 60
-                 :layout-width :fill}]
-    [:text-view {:id ::z
-                 :layout-height 60
-                 :layout-width :fill}]]
+    (display-element ::y)
+    (display-element ::z)]
    [[:linear-layout row-attributes
      (button-element "CLEAR" calc/clear-handler)
      (button-element "BACK" calc/backspace-handler)
