@@ -12,7 +12,7 @@
 ;; access to all application resources.
 (res/import-all)
 
-(defn notify-from-edit
+'(defn notify-from-edit
   "Finds an EditText element with ID ::user-input in the given activity. Gets
   its contents and displays them in a toast if they aren't empty. We use
   resources declared in res/values/strings.xml."

@@ -1,5 +1,17 @@
 (ns warreq.kea.calc.ui
-  (:require [warreq.kea.calc.calc :as calc]))
+  (:require [neko.find-view :refer [find-view]]
+            [neko.debug :refer [*a]]
+            [warreq.kea.calc.calc :as calc]))
+
+(add-watch calc/input :input
+           (fn [key atom old new]
+             (.setText (find-view (*a :main) ::z) new)))
+
+(add-watch calc/expression :expression
+           (fn [key atom old new]
+             (if (not= 0 new)
+               (.setText (find-view (*a :main) ::y) (str (first new)))
+               (.setText (find-view (*a :main) ::y) ""))))
 
 (def row-attributes
   {:orientation :horizontal
@@ -32,9 +44,9 @@
                  :layout-width :fill}]]
    [[:linear-layout row-attributes
      (button-element "CLEAR" calc/clear-handler)
+     (button-element "BACK" calc/backspace-handler)
      (button-element "±" calc/invert-handler)
-     (button-element "^" calc/op-handler)
-     (button-element "√" calc/op-handler)]]
+     (button-element "^" calc/op-handler)]]
    (map (fn [i]
           (concat
            [:linear-layout row-attributes]
@@ -45,7 +57,7 @@
            [(get op-column i)]))
         (range 3))
    [[:linear-layout row-attributes
-     (button-element "RET" calc/op-handler)
+     (button-element "RET" calc/return-handler)
      (button-element 0 calc/num-handler)
      (button-element "." calc/num-handler)
      (button-element "+" calc/op-handler)]]))

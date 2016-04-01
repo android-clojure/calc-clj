@@ -12,6 +12,7 @@
   :plugins [[lein-droid "0.4.3"]]
 
   :dependencies [[org.clojure-android/clojure "1.7.0-r2"]
+                 [org.clojure/math.numeric-tower "0.0.4"]
                  [neko/neko "4.0.0-alpha5"]]
   :profiles {:default [:dev]
 
