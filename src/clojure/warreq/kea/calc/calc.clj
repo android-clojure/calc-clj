@@ -34,8 +34,9 @@
 
 (defn return-handler
   [_]
-  (swap! stack conj (read-string (deref input)))
-  (reset! input ""))
+  (when (> (count (deref input)) 0)
+    (swap! stack conj (read-string (deref input)))
+    (reset! input "")))
 
 (defn num-handler
   [n]
@@ -62,13 +63,16 @@
   [_]
   (let [cur (deref input)]
     (when (> (count cur) 0)
-      (reset! input (.substring ^String cur 0 (- (count cur) 1))))))
+      (reset! input (.substring ^String cur 0 (- (count cur) 1)))
+      (when (= "-" (deref input))
+        (reset! input "")))))
 
 (defn invert-handler
   [_]
   (let [cur (deref input)]
-    (if (= (.charAt ^String cur 0) \-)
-      (reset! input (.substring ^String cur 1 (count cur)))
-      (reset! input (str "-" cur)))))
+    (when (> (count cur) 0)
+      (if (= (.charAt ^String cur 0) \-)
+        (reset! input (.substring ^String cur 1 (count cur)))
+        (reset! input (str "-" cur))))))
 
 
