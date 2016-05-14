@@ -1,17 +1,27 @@
 (ns warreq.kea.calc.ui
   (:require [neko.find-view :refer [find-view]]
-            [neko.debug :refer [*a]]
+            [neko.context :refer [get-service]]
             [warreq.kea.calc.calc :as calc]))
 
-(add-watch calc/input :input
-           (fn [key atom old new]
-             (.setText (find-view (*a :main) ::z) new)))
+(defn init! [activity]
+  "Initialize the watches used by the UI by passing in the live activity
+ context."
+  (add-watch calc/input :input
+             (fn [key atom old new]
+               (let [^android.widget.TextView disp (find-view activity ::z)]
+                 (.setText disp ^String new))))
+  (add-watch calc/stack :stack
+             (fn [key atom old new]
+               (let [^android.widget.TextView disp (find-view activity ::y)]
+                 (if (not= 0 new)
+                   (.setText disp (str (first new)))
+                   (.setText disp ""))))))
 
-(add-watch calc/stack :stack
-           (fn [key atom old new]
-             (if (not= 0 new)
-               (.setText (find-view (*a :main) ::y) (str (first new)))
-               (.setText (find-view (*a :main) ::y) ""))))
+(defn vibrate! [n]
+  "Vibrate phone for n seconds. Convenience function for avoiding use of
+  refection when acquiring the Vibrator Service via `neko.context`."
+  (let [vibrator (cast android.os.Vibrator (get-service :vibrator))]
+    (.vibrate ^android.os.Vibrator vibrator n)))
 
 (def row-attributes
   {:orientation :horizontal
@@ -22,7 +32,7 @@
 (defn display-element
   [id]
   [:text-view {:id id
-               :text-size 37.0
+               :text-size 34.0
                :layout-height 60
                :gravity :right
                :layout-width :fill}])
@@ -34,7 +44,7 @@
             :layout-height :fill
             :layout-weight 1
             :text (str value)
-            :on-click (fn [_] (handler value))}])
+            :on-click (fn [_] (vibrate! 30) (handler value))}])
 
 (def op-column
   [(button-element "÷" calc/op-handler)

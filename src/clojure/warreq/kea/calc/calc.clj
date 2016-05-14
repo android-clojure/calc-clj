@@ -43,7 +43,7 @@
 
 (defn op-handler
   [op]
-  (when (> (.length (deref input)) 0)
+  (when (> (count (deref input)) 0)
     (return-handler op))
   (when (>= (count (deref stack)) 2)
     (swap! expression conj (op-alias op))
@@ -61,14 +61,14 @@
 (defn backspace-handler
   [_]
   (let [cur (deref input)]
-    (when (> (.length cur) 0)
-      (reset! input (.substring cur 0 (- (.length cur) 1))))))
+    (when (> (count cur) 0)
+      (reset! input (.substring ^String cur 0 (- (count cur) 1))))))
 
 (defn invert-handler
   [_]
   (let [cur (deref input)]
-    (if (= (.charAt cur 0) \-)
-      (reset! input (.substring cur 1 (.length cur)))
+    (if (= (.charAt ^String cur 0) \-)
+      (reset! input (.substring ^String cur 1 (count cur)))
       (reset! input (str "-" cur)))))
 
 

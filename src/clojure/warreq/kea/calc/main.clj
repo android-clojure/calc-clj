@@ -1,11 +1,10 @@
 (ns warreq.kea.calc.main
   (:require [neko.activity :refer [defactivity set-content-view!]]
-            [neko.debug :refer [*a]]
             [neko.notify :refer [toast]]
             [neko.resource :as res]
             [neko.find-view :refer [find-view]]
             [neko.threading :refer [on-ui]]
-            [warreq.kea.calc.ui :refer [main-layout]])
+            [warreq.kea.calc.ui :refer [main-layout init!]])
   (:import android.widget.EditText))
 
 ;; We execute this function to import all subclasses of R class. This gives us
@@ -28,5 +27,6 @@
   (onCreate [this bundle]
             (.superOnCreate this bundle)
             (neko.debug/keep-screen-on this)
+            (init! this)
             (on-ui
-             (set-content-view! (*a) main-layout))))
+             (set-content-view! this main-layout))))
