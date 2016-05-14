@@ -28,7 +28,7 @@
                :layout-width :fill}])
 
 (defn button-element
-  "builds a button element for a given value and handler"
+  "Build a button element for a given value and handler."
   [value handler]
   [:button {:layout-width 0
             :layout-height :fill

@@ -6,16 +6,19 @@
 (def expression (atom []))
 
 (defn rpn
-  "evaluates an expression composed in Reverse Polish Notation and returns
-  the result"
+  "Evaluate an expression composed in Reverse Polish Notation and return the
+  result. `rpn` may optionally take a stack as a separate parameter, which may
+  contain a partially resolved expression."
   ([e]
    (rpn e '()))
   ([e s]
    (if (empty? e)
      (first s)
      (if (number? (first e))
-       (recur (rest e) (conj s (first e)))
-       (recur (rest e) (conj (drop 2 s) (eval (conj (reverse (take 2 s)) (first e)))))))))
+       (recur (rest e)
+              (conj s (first e)))
+       (recur (rest e)
+              (conj (drop 2 s) (eval (conj (reverse (take 2 s)) (first e)))))))))
 
 (defn floating-division [x y]
   (float (/ x y)))
@@ -50,7 +53,8 @@
 (defn backspace-handler
   [_]
   (let [cur (deref input)]
-    (reset! input (.substring cur 0 (- (.length cur) 1)))))
+    (when (> (.length cur) 0)
+      (reset! input (.substring cur 0 (- (.length cur) 1))))))
 
 (defn invert-handler
   [_]
