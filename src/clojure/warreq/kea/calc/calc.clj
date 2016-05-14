@@ -5,6 +5,8 @@
 
 (def expression (atom []))
 
+(def stack (atom '()))
+
 (defn rpn
   "Evaluate an expression composed in Reverse Polish Notation and return the
   result. `rpn` may optionally take a stack as a separate parameter, which may
@@ -32,7 +34,7 @@
 
 (defn return-handler
   [_]
-  (swap! expression conj (read-string (deref input)))
+  (swap! stack conj (read-string (deref input)))
   (reset! input ""))
 
 (defn num-handler
@@ -41,14 +43,20 @@
 
 (defn op-handler
   [op]
-  (return-handler op)
-  (swap! expression conj (op-alias op))
-  (reset! expression [(rpn (apply list (deref expression)))]))
+  (when (> (.length (deref input)) 0)
+    (return-handler op))
+  (when (>= (count (deref stack)) 2)
+    (swap! expression conj (op-alias op))
+    (reset! expression [(rpn (apply list (deref expression)) (deref stack))])
+    (reset! stack (drop 2 (deref stack)))
+    (swap! stack conj (first (deref expression)))
+    (reset! expression [])))
 
 (defn clear-handler
   [_]
   (reset! input "")
-  (reset! expression '[]))
+  (reset! expression [])
+  (reset! stack '()))
 
 (defn backspace-handler
   [_]

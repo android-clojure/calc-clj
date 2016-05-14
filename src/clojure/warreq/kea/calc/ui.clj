@@ -7,7 +7,7 @@
            (fn [key atom old new]
              (.setText (find-view (*a :main) ::z) new)))
 
-(add-watch calc/expression :expression
+(add-watch calc/stack :stack
            (fn [key atom old new]
              (if (not= 0 new)
                (.setText (find-view (*a :main) ::y) (str (first new)))
