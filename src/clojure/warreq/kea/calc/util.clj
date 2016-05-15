@@ -9,12 +9,13 @@
 
 (defn display-element
   "Create a UI widget for displaying a right-justified text-field."
-  [id]
-  [:text-view {:id id
-               :text-size 34.0
-               :layout-height 60
-               :gravity :right
-               :layout-width :fill}])
+  [id cfg]
+  [:text-view (merge {:id id
+                      :text-size 34.0
+                      :layout-height 60
+                      :gravity :right
+                      :layout-width :fill}
+                     cfg)])
 
 (defn button-element
   "Build a button element for a given value and handler."

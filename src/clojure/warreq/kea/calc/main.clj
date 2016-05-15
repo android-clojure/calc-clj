@@ -37,10 +37,10 @@
 (def main-layout
   (concat
    [:linear-layout {:orientation :vertical}
-    (u/display-element ::w)
-    (u/display-element ::x)
-    (u/display-element ::y)
-    (u/display-element ::z)]
+    (u/display-element ::w {:on-long-click (fn [_] (show-stack!))})
+    (u/display-element ::x {:on-long-click (fn [_] (show-stack!))})
+    (u/display-element ::y {:on-long-click (fn [_] (show-stack!))})
+    (u/display-element ::z {})]
    [[:linear-layout u/row-attributes
      (u/button-element "CLEAR" calc/clear-handler)
      (u/button-element "BACK" calc/backspace-handler)
