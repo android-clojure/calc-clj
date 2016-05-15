@@ -23,7 +23,7 @@
               (conj (drop 2 s) (eval (conj (reverse (take 2 s)) (first e)))))))))
 
 (defn floating-division [x y]
-  (float (/ x y)))
+  (.divide ^java.math.BigDecimal x y java.math.RoundingMode/HALF_UP))
 
 (defn op-alias [op]
   (case op
@@ -35,7 +35,7 @@
 (defn return-handler
   [_]
   (when (> (count (deref input)) 0)
-    (swap! stack conj (read-string (deref input)))
+    (swap! stack conj (bigdec (read-string (deref input))))
     (reset! input "")))
 
 (defn num-handler

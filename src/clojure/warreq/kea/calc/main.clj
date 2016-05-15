@@ -2,6 +2,7 @@
   (:require [neko.activity :refer [defactivity set-content-view!]]
             [neko.notify :refer [toast]]
             [neko.resource :as res]
+            [neko.debug :refer [*a]]
             [neko.find-view :refer [find-view]]
             [neko.threading :refer [on-ui]]
             [warreq.kea.calc.ui :refer [main-layout init!]])
@@ -28,6 +29,6 @@
   (onCreate [this bundle]
             (.superOnCreate this bundle)
             (neko.debug/keep-screen-on this)
-            (init! this)
+            (init! (*a))
             (on-ui
-             (set-content-view! this main-layout))))
+             (set-content-view! (*a) main-layout))))
