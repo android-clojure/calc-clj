@@ -12,10 +12,10 @@
                  (.setText disp ^String new))))
   (add-watch calc/stack :stack
              (fn [key atom old new]
-               (let [^android.widget.TextView disp (find-view activity ::y)]
-                 (if (not= 0 new)
-                   (.setText disp (str (first new)))
-                   (.setText disp ""))))))
+               (let [^android.widget.TextView y (find-view activity ::y)
+                     ^android.widget.TextView x (find-view activity ::x)]
+                 (.setText y (str (first new)))
+                 (.setText x (str (second new)))))))
 
 (defn vibrate! [n]
   "Vibrate phone for n seconds. Convenience function for avoiding use of
@@ -54,6 +54,7 @@
 (def main-layout
   (concat
    [:linear-layout {:orientation :vertical}
+    (display-element ::x)
     (display-element ::y)
     (display-element ::z)]
    [[:linear-layout row-attributes

@@ -24,6 +24,7 @@
 
 (defactivity warreq.kea.calc.MainActivity
   :key :main
+  :features [:no-title]
   (onCreate [this bundle]
             (.superOnCreate this bundle)
             (neko.debug/keep-screen-on this)
