@@ -16,7 +16,7 @@
 
 (defn show-stack! []
   (let [a (*a)]
-    (.startActivity a (intent a '.StackView {}))))
+    (.startActivity ^android.app.Activity a (intent a '.StackView {}))))
 
 '(defn notify-from-edit
    "Finds an EditText element with ID ::user-input in the given activity. Gets
@@ -80,4 +80,9 @@
                          (fn [key atom old new]
                            (.setText y (str (first new)))
                            (.setText x (str (second new)))
-                           (.setText w (str (nth new 2 ""))))))))
+                           (.setText w (str (nth new 2 "")))))))
+  (onResume [this]
+            (.superOnResume this)
+            ;; Force an event to make the watchers update
+            (on-ui (do (reset! calc/stack (deref calc/stack))
+                       (reset! calc/input (deref calc/input))))))

@@ -17,6 +17,16 @@
                       :layout-width :fill}
                      cfg)])
 
+(defn label-element
+  "Create a UI widget for displaying a left-justified label."
+  [id cfg]
+  [:text-view (merge {:id id
+                      :text-size 18.0
+                      :layout-height 60
+                      :gravity :left
+                      :layout-width :wrap-content}
+                     cfg)])
+
 (defn button-element
   "Build a button element for a given value and handler."
   [value handler]
@@ -28,6 +38,6 @@
 
 (def row-attributes
   {:orientation :horizontal
-   :layout-width :fill
-   :layout-height 0
-   :layout-weight 1})
+          :layout-width :fill
+          :layout-height 0
+          :layout-weight 1})
