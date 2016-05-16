@@ -1,5 +1,6 @@
 (ns warreq.kea.calc.util
-  (:require [neko.context :refer [get-service]]))
+  (:require [neko.context :refer [get-service]])
+  (:import android.graphics.Typeface))
 
 (defn vibrate! [n]
   "Vibrate phone for n seconds. Convenience function for avoiding use of
@@ -13,6 +14,7 @@
   [:text-view (merge {:id id
                       :text-size 34.0
                       :layout-height 60
+                      :typeface android.graphics.Typeface/MONOSPACE
                       :gravity :right
                       :layout-width :fill}
                      cfg)])
