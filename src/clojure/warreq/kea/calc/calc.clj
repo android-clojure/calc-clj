@@ -1,5 +1,6 @@
 (ns warreq.kea.calc.calc
-  (:require [clojure.math.numeric-tower :refer [expt]]))
+  (:require [clojure.math.numeric-tower :refer [expt]])
+  (:import java.math.BigDecimal))
 
 (def input (atom ""))
 
@@ -23,7 +24,7 @@
               (conj (drop 2 s) (eval (conj (reverse (take 2 s)) (first e)))))))))
 
 (defn floating-division [x y]
-  (.divide ^java.math.BigDecimal x y java.math.RoundingMode/HALF_UP))
+  (.divide ^BigDecimal x ^BigDecimal y java.math.RoundingMode/HALF_UP))
 
 (defn op-alias [op]
   (case op

@@ -1,6 +1,6 @@
 (defproject calc-clj/calc-clj "0.1.0-SNAPSHOT"
-  :description "FIXME: Android project description"
-  :url "http://example.com/FIXME"
+  :description "4+ function RPN calculator for Android."
+  :url "http://github.com/warreq/calc-clj"
   :license {:name "UNLICENSE"
             :url "https://unlicense.org/UNLICENSE"}
 
@@ -33,7 +33,20 @@
 
                 :ignore-log-priority [:debug :verbose]
                 :aot :all
-                :build-type :release}}]}
+                :build-type :release}}]
+
+             :lean
+             [:release
+              {:dependencies ^:replace [[org.skummet/clojure "1.7.0-r1"]
+                                        [org.clojure/math.numeric-tower "0.0.4"]
+                                        [neko/neko "4.0.0-alpha5"]]
+               :exclusions [[org.clojure/clojure]
+                            [org.clojure-android/clojure]]
+               :jvm-opts ["-Dclojure.compile.ignore-lean-classes=true"]
+               :global-vars ^:replace {clojure.core/*warn-on-reflection* true}
+               :android {:lean-compile true
+                         :proguard-execute true
+                         :proguard-conf-path "build/proguard-minify.cfg"}}]}
 
   :android {;; Specify the path to the Android SDK directory.
             ;; :sdk-path "/home/user/path/to/android-sdk/"
