@@ -1,5 +1,6 @@
 (ns warreq.kea.calc.main
   (:require [neko.activity :refer [defactivity set-content-view!]]
+            [neko.ui :refer [config]]
             [neko.notify :refer [toast]]
             [neko.intent :refer [intent]]
             [neko.resource :as res]
@@ -8,7 +9,8 @@
             [neko.threading :refer [on-ui]]
             [warreq.kea.calc.util :as u]
             [warreq.kea.calc.calc :as calc])
-  (:import android.widget.EditText))
+  (:import android.widget.EditText android.widget.TextView
+           android.graphics.Typeface android.text.InputType))
 
 ;; We execute this function to import all subclasses of R class. This gives us
 ;; access to all application resources.
@@ -17,6 +19,13 @@
 (defn show-stack! []
   (let [a (*a)]
     (.startActivity ^android.app.Activity a (intent a '.StackView {}))))
+
+(defn toggle-edit-input
+  "Find the EditText with ID ::z in the given activity. Enable numeric input
+  to the element via the device's keyboard."
+  [activity]
+  (let [t (find-view activity ::z)]
+    (config t :input-type InputType/TYPE_CLASS_NUMBER)))
 
 '(defn notify-from-edit
    "Finds an EditText element with ID ::user-input in the given activity. Gets
@@ -40,7 +49,14 @@
     (u/display-element ::w {:on-long-click (fn [_] (show-stack!))})
     (u/display-element ::x {:on-long-click (fn [_] (show-stack!))})
     (u/display-element ::y {:on-long-click (fn [_] (show-stack!))})
-    (u/display-element ::z {})]
+    [:edit-text {:id ::z
+                 :text-size 34.0
+                 :input-type 0
+                 :layout-height 90
+                 :typeface android.graphics.Typeface/MONOSPACE
+                 :gravity :left
+                 :layout-width :fill
+                 :on-long-click (fn [_] (toggle-edit-input (*a)))}]]
    [[:linear-layout u/row-attributes
      (u/button-element "CLEAR" calc/clear-handler)
      (u/button-element "BACK" calc/backspace-handler)
@@ -69,10 +85,10 @@
             (neko.debug/keep-screen-on this)
             (on-ui
              (set-content-view! (*a) main-layout))
-            (let [^android.widget.TextView z (find-view (*a) ::z)
-                  ^android.widget.TextView y (find-view (*a) ::y)
-                  ^android.widget.TextView x (find-view (*a) ::x)
-                  ^android.widget.TextView w (find-view (*a) ::w)]
+            (let [^TextView z (find-view (*a) ::z)
+                  ^TextView y (find-view (*a) ::y)
+                  ^TextView x (find-view (*a) ::x)
+                  ^TextView w (find-view (*a) ::w)]
               (add-watch calc/input :input
                          (fn [key atom old new]
                            (.setText z ^String new)))

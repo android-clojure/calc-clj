@@ -1,5 +1,6 @@
 (ns warreq.kea.calc.util
-  (:require [neko.context :refer [get-service]])
+  (:require [neko.context :refer [get-service]]
+            [neko.find-view :refer [find-view]])
   (:import android.graphics.Typeface))
 
 (defn vibrate! [n]
@@ -40,6 +41,6 @@
 
 (def row-attributes
   {:orientation :horizontal
-          :layout-width :fill
-          :layout-height 0
-          :layout-weight 1})
+   :layout-width :fill
+   :layout-height 0
+   :layout-weight 1})
