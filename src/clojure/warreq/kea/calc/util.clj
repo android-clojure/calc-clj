@@ -4,7 +4,7 @@
   (:import android.graphics.Typeface))
 
 (defn vibrate! [n]
-  "Vibrate phone for n seconds. Convenience function for avoiding use of
+  "Vibrate phone for n milliseconds. Convenience function for avoiding use of
   refection when acquiring the Vibrator Service via `neko.context`."
   (let [vibrator (cast android.os.Vibrator (get-service :vibrator))]
     (.vibrate ^android.os.Vibrator vibrator n)))

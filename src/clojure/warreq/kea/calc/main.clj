@@ -89,6 +89,10 @@
                   ^TextView y (find-view (*a) ::y)
                   ^TextView x (find-view (*a) ::x)
                   ^TextView w (find-view (*a) ::w)]
+              (add-watch calc/error :error
+                         (fn [key atom old new]
+                           (u/vibrate! 500)
+                           (toast ^String new)))
               (add-watch calc/input :input
                          (fn [key atom old new]
                            (.setText z ^String new)))
