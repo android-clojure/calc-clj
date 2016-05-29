@@ -21,7 +21,7 @@
 
 (defn floating-division [x y]
   (if (not= ^BigDecimal y BigDecimal/ZERO)
-    (.divide ^BigDecimal x ^BigDecimal y java.math.RoundingMode/HALF_UP)
+    (.divide ^BigDecimal x ^BigDecimal y 2 java.math.RoundingMode/HALF_EVEN)
     (do (u/vibrate! 500)
         (toast "Cannot divide by 0."))))
 
