@@ -3,7 +3,8 @@
             [neko.ui.mapping :refer [defelement]]
             [neko.find-view :refer [find-view]])
   (:import android.graphics.Typeface
-           android.view.inputmethod.EditorInfo))
+           android.view.inputmethod.EditorInfo
+           android.graphics.Color))
 
 (defn vibrate!
   "Vibrate phone for n milliseconds. Convenience function for avoiding use of
@@ -12,24 +13,45 @@
   (let [vibrator (cast android.os.Vibrator (get-service :vibrator))]
     (.vibrate ^android.os.Vibrator vibrator n)))
 
-(defn button-element
-  "Build a button element for a given value and handler."
+(defn number-button
+  "Build a button element for a number."
   [value handler]
   (let [x (if (number? value) (+ value 1) 1)
         d (* 60 (/ x 2))]
     [:button {:layout-width 0
               :layout-height :fill
               :layout-weight 1
+              :background-color Color/BLACK
               :typeface Typeface/MONOSPACE
               :text (str value)
               :on-click (fn [_] (vibrate! d) (handler value))}]))
+
+(defn operator-button
+  "Build a button element for an operator."
+  [value handler]
+    [:button {:layout-width 0
+              :layout-height :fill
+              :layout-weight 1
+              :text (str value)
+              :on-click (fn [_] (vibrate! 10) (handler value))}])
 
 (defn display-element
   "Create a UI widget for displaying a right-justified text-field."
   [id cfg]
   [:text-view (merge {:id id
                       :text-size [44 :sp]
-                      :layout-height [48 :sp]
+                      :layout-height [48 :dp]
+                      :typeface Typeface/MONOSPACE
+                      :gravity :right
+                      :layout-width :fill}
+                     cfg)])
+
+(defn display-element-landscape
+  "Create a UI widget for displaying a right-justified text-field, landscape."
+  [id cfg]
+  [:text-view (merge {:id id
+                      :text-size [22 :sp]
+                      :layout-height [24 :dp]
                       :typeface Typeface/MONOSPACE
                       :gravity :right
                       :layout-width :fill}
@@ -40,7 +62,7 @@
   [id cfg]
   [:text-view (merge {:id id
                       :text-size [22 :sp]
-                      :layout-height [60 :sp]
+                      :layout-height [60 :dp]
                       :gravity :left
                       :layout-width :wrap-content}
                      cfg)])

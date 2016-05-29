@@ -1,8 +1,8 @@
 (ns warreq.kea.calc.math
-  (:require [clojure.math.numeric-tower :refer [expt]])
+  (:require [clojure.math.numeric-tower :refer [expt]]
+            [warreq.kea.calc.util :as u]
+            [neko.notify :refer [toast]])
   (:import java.math.BigDecimal))
-
-(def err (atom ""))
 
 (defn rpn
   "Evaluate an expression composed in Reverse Polish Notation and return the
@@ -22,7 +22,8 @@
 (defn floating-division [x y]
   (if (not= ^BigDecimal y BigDecimal/ZERO)
     (.divide ^BigDecimal x ^BigDecimal y java.math.RoundingMode/HALF_UP)
-    (do (reset! err "Cannot divide by 0.") nil)))
+    (do (u/vibrate! 500)
+        (toast "Cannot divide by 0."))))
 
 (defn op-alias [op]
   (case op

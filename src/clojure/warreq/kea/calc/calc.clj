@@ -1,7 +1,6 @@
 (ns warreq.kea.calc.calc
   (:require [neko.activity :refer [defactivity set-content-view!]]
-            [neko.ui :refer [config]]
-            [neko.notify :refer [toast]]
+            [neko.ui :refer [config get-screen-orientation]]
             [neko.intent :refer [intent]]
             [neko.resource :as res]
             [neko.debug :refer [*a]]
@@ -89,44 +88,46 @@
 
 ;; Layout Definitions ===========================================================
 (def op-column
-  [(u/button-element "÷" op-handler)
-   (u/button-element "×" op-handler)
-   (u/button-element "-" op-handler)])
+  [(u/operator-button "÷" op-handler)
+   (u/operator-button "×" op-handler)
+   (u/operator-button "-" op-handler)])
 
-(def main-layout
+(defn main-layout
+  [landscape?]
+  (let [disp (if landscape? u/display-element-landscape u/display-element)]
     (concat
      [:linear-layout {:orientation :vertical}
-      (u/display-element ::w {:on-long-click (fn [_] (show-stack!))})
-      (u/display-element ::x {:on-long-click (fn [_] (show-stack!))})
-      (u/display-element ::y {:on-long-click (fn [_] (show-stack!))})
+      (disp ::w {:on-long-click (fn [_] (show-stack!))})
+      (disp ::x {:on-long-click (fn [_] (show-stack!))})
+      (disp ::y {:on-long-click (fn [_] (show-stack!))})
       [:edit-text {:id ::z
                    :input-type 0
                    :single-line true
-                   :layout-height [52 :sp]
-                   :text-size [44 :sp]
+                   :layout-height (if landscape? [30 :dp] [52 :dp])
+                   :text-size (if landscape? [22 :sp] [44 :sp])
                    :typeface android.graphics.Typeface/MONOSPACE
                    :gravity :left
                    :layout-width :fill
                    :on-long-click (fn [_] (toggle-edit-input))}]]
      [[:linear-layout u/row-attributes
-       (u/button-element "CLEAR" clear-handler)
-       (u/button-element "BACK" backspace-handler)
-       (u/button-element "±" invert-handler)
-       (u/button-element "^" op-handler)]]
+       (u/operator-button "CLEAR" clear-handler)
+       (u/operator-button "BACK" backspace-handler)
+       (u/operator-button "±" invert-handler)
+       (u/operator-button "^" op-handler)]]
      (map (fn [i]
             (concat
              [:linear-layout u/row-attributes]
              (map (fn [j]
                     (let [n (+ (* i 3) j)]
-                      (u/button-element n num-handler)))
+                      (u/number-button n num-handler)))
                   (range 1 4))
              [(get op-column i)]))
           (range 3))
      [[:linear-layout u/row-attributes
-       (u/button-element "RET" return-handler)
-       (u/button-element 0 num-handler)
-       (u/button-element "." num-handler)
-       (u/button-element "+" op-handler)]]))
+       (u/operator-button "RET" return-handler)
+       (u/number-button 0 num-handler)
+       (u/number-button "." num-handler)
+       (u/operator-button "+" op-handler)]])))
 
 ;; Activities ===================================================================
 (defactivity warreq.kea.calc.Calculator
@@ -135,16 +136,13 @@
   (onCreate [this bundle]
             (.superOnCreate this bundle)
             (neko.debug/keep-screen-on this)
-            (on-ui
-             (set-content-view! (*a) main-layout))
+            (let [landscape? (= (get-screen-orientation) :landscape)]
+              (on-ui
+               (set-content-view! (*a) (main-layout landscape?))))
             (let [^TextView z (find-view (*a) ::z)
                   ^TextView y (find-view (*a) ::y)
                   ^TextView x (find-view (*a) ::x)
                   ^TextView w (find-view (*a) ::w)]
-              (add-watch math/err :error
-                         (fn [key atom old new]
-                           (u/vibrate! 500)
-                           (toast ^String new)))
               (add-watch stack :stack
                          (fn [key atom old new]
                            (.setText y (str (first new)))
