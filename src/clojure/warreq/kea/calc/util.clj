@@ -12,12 +12,24 @@
   (let [vibrator (cast android.os.Vibrator (get-service :vibrator))]
     (.vibrate ^android.os.Vibrator vibrator n)))
 
+(defn button-element
+  "Build a button element for a given value and handler."
+  [value handler]
+  (let [x (if (number? value) (+ value 1) 1)
+        d (* 60 (/ x 2))]
+    [:button {:layout-width 0
+              :layout-height :fill
+              :layout-weight 1
+              :typeface Typeface/MONOSPACE
+              :text (str value)
+              :on-click (fn [_] (vibrate! d) (handler value))}]))
+
 (defn display-element
   "Create a UI widget for displaying a right-justified text-field."
   [id cfg]
   [:text-view (merge {:id id
-                      :text-size [44.0 :sp]
-                      :layout-height [60 :sp]
+                      :text-size [44 :sp]
+                      :layout-height [48 :sp]
                       :typeface Typeface/MONOSPACE
                       :gravity :right
                       :layout-width :fill}
@@ -27,22 +39,11 @@
   "Create a UI widget for displaying a left-justified label."
   [id cfg]
   [:text-view (merge {:id id
-                      :text-size [18.0 :sp]
+                      :text-size [22 :sp]
                       :layout-height [60 :sp]
                       :gravity :left
                       :layout-width :wrap-content}
                      cfg)])
-
-(defn button-element
-  "Build a button element for a given value and handler."
-  [value handler]
-  (let [x (if (number? value) (+ value 1) 1)
-        d (* 60 (/ x 2))]
-    [:button {:layout-width 0
-              :layout-height :fill
-              :layout-weight 1
-              :text (str value)
-              :on-click (fn [_] (vibrate! d) (handler value))}]))
 
 (def row-attributes
   {:orientation :horizontal

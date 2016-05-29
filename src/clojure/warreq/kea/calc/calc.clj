@@ -1,61 +1,65 @@
 (ns warreq.kea.calc.calc
-  (:require [clojure.math.numeric-tower :refer [expt]]
-            [neko.notify :refer [toast]])
-  (:import java.math.BigDecimal))
+  (:require [neko.activity :refer [defactivity set-content-view!]]
+            [neko.ui :refer [config]]
+            [neko.notify :refer [toast]]
+            [neko.intent :refer [intent]]
+            [neko.resource :as res]
+            [neko.debug :refer [*a]]
+            [neko.find-view :refer [find-view]]
+            [neko.threading :refer [on-ui]]
+            [warreq.kea.calc.util :as u]
+            [warreq.kea.calc.math :as math])
+  (:import android.widget.EditText
+           android.widget.TextView
+           android.graphics.Typeface
+           android.text.InputType))
 
-(def input (atom ""))
+;; We execute this function to import all subclasses of R class. This gives us
+;; access to all application resources.
+(res/import-all)
 
+;; Calculator state =============================================================
 (def expression (atom []))
 
 (def stack (atom '()))
 
-(def err (atom ""))
+(defn ^android.widget.EditText input
+  "Fetch the Input EditText field."
+  []
+  (find-view (*a) ::z))
 
-(defn rpn
-  "Evaluate an expression composed in Reverse Polish Notation and return the
-  result. `rpn` may optionally take a stack as a separate parameter, which may
-  contain a partially resolved expression."
-  ([e]
-   (rpn e '()))
-  ([e s]
-   (if (empty? e)
-     (first s)
-     (if (number? (first e))
-       (recur (rest e)
-              (conj s (first e)))
-       (recur (rest e)
-              (conj (drop 2 s) (eval (conj (reverse (take 2 s)) (first e)))))))))
+(defn input-text
+  "Fetch the current text from the Input EditText field"
+  []
+  (.toString (.getText (input))))
 
-(defn floating-division [x y]
-  (if (not= ^BigDecimal y BigDecimal/ZERO)
-    (.divide ^BigDecimal x ^BigDecimal y java.math.RoundingMode/HALF_UP)
-    (do (reset! err "Cannot divide by 0.") nil)))
+(defn toggle-edit-input
+  "Enable numeric input to the Input widget via the device's keyboard."
+  []
+  (config (input) :input-type InputType/TYPE_CLASS_NUMBER))
 
-(defn op-alias [op]
-  (case op
-    "^" expt
-    "÷" floating-division
-    "×" *
-    (resolve (symbol op))))
+(defn show-stack! []
+  (let [a (*a)]
+    (.startActivity ^android.app.Activity a (intent a '.StackView {}))))
 
+;; Handler functions ============================================================
 (defn return-handler
   [_]
-  (when (> (count (deref input)) 0)
-    (swap! stack conj (bigdec (read-string (deref input))))
-    (reset! input "")))
+  (when (> (count (input-text)) 0)
+    (swap! stack conj (bigdec (read-string (input-text)))))
+  (.setText (input) ""))
 
 (defn num-handler
   [n]
-  (swap! input str n))
+  (.setText (input) (str (input-text) n)))
 
 (defn op-handler
   [op]
-  (when (> (count (deref input)) 0)
+  (when (> (count (input-text)) 0)
     (return-handler op))
   (when (>= (count (deref stack)) 2)
-    (swap! expression conj (op-alias op))
-    (when-let [result (rpn (apply list (deref expression)) (deref stack))]
-      (toast (str result))
+    (swap! expression conj (math/op-alias op))
+    (when-let [result (math/rpn (apply list (deref expression)) (deref stack))]
       (reset! expression [result])
       (reset! stack (drop 2 (deref stack)))
       (swap! stack conj (first (deref expression)))
@@ -63,22 +67,90 @@
 
 (defn clear-handler
   [_]
-  (reset! input "")
+  (.setText (input) "")
   (reset! expression [])
   (reset! stack '()))
 
 (defn backspace-handler
   [_]
-  (let [cur (deref input)]
+  (let [cur (input-text)]
     (when (> (count cur) 0)
-      (reset! input (.substring ^String cur 0 (- (count cur) 1)))
-      (when (= "-" (deref input))
-        (reset! input "")))))
+      (.setText (input) (.substring ^String cur 0 (- (count cur) 1)))
+      (when (= "-" (input-text))
+        (.setText (input) "")))))
 
 (defn invert-handler
   [_]
-  (let [cur (deref input)]
+  (let [cur (input-text)]
     (when (> (count cur) 0)
       (if (= (.charAt ^String cur 0) \-)
-        (reset! input (.substring ^String cur 1 (count cur)))
-        (reset! input (str "-" cur))))))
+        (.setText (input) (.substring ^String cur 1 (count cur)))
+        (.setText (input) (str "-" cur))))))
+
+;; Layout Definitions ===========================================================
+(def op-column
+  [(u/button-element "÷" op-handler)
+   (u/button-element "×" op-handler)
+   (u/button-element "-" op-handler)])
+
+(def main-layout
+    (concat
+     [:linear-layout {:orientation :vertical}
+      (u/display-element ::w {:on-long-click (fn [_] (show-stack!))})
+      (u/display-element ::x {:on-long-click (fn [_] (show-stack!))})
+      (u/display-element ::y {:on-long-click (fn [_] (show-stack!))})
+      [:edit-text {:id ::z
+                   :input-type 0
+                   :single-line true
+                   :layout-height [52 :sp]
+                   :text-size [44 :sp]
+                   :typeface android.graphics.Typeface/MONOSPACE
+                   :gravity :left
+                   :layout-width :fill
+                   :on-long-click (fn [_] (toggle-edit-input))}]]
+     [[:linear-layout u/row-attributes
+       (u/button-element "CLEAR" clear-handler)
+       (u/button-element "BACK" backspace-handler)
+       (u/button-element "±" invert-handler)
+       (u/button-element "^" op-handler)]]
+     (map (fn [i]
+            (concat
+             [:linear-layout u/row-attributes]
+             (map (fn [j]
+                    (let [n (+ (* i 3) j)]
+                      (u/button-element n num-handler)))
+                  (range 1 4))
+             [(get op-column i)]))
+          (range 3))
+     [[:linear-layout u/row-attributes
+       (u/button-element "RET" return-handler)
+       (u/button-element 0 num-handler)
+       (u/button-element "." num-handler)
+       (u/button-element "+" op-handler)]]))
+
+;; Activities ===================================================================
+(defactivity warreq.kea.calc.Calculator
+  :key :main
+  :features [:no-title]
+  (onCreate [this bundle]
+            (.superOnCreate this bundle)
+            (neko.debug/keep-screen-on this)
+            (on-ui
+             (set-content-view! (*a) main-layout))
+            (let [^TextView z (find-view (*a) ::z)
+                  ^TextView y (find-view (*a) ::y)
+                  ^TextView x (find-view (*a) ::x)
+                  ^TextView w (find-view (*a) ::w)]
+              (add-watch math/err :error
+                         (fn [key atom old new]
+                           (u/vibrate! 500)
+                           (toast ^String new)))
+              (add-watch stack :stack
+                         (fn [key atom old new]
+                           (.setText y (str (first new)))
+                           (.setText x (str (second new)))
+                           (.setText w (str (nth new 2 "")))))))
+  (onResume [this]
+            (.superOnResume this)
+            ;; Force an event to make the watchers update
+            (on-ui (reset! stack (deref stack)))))

@@ -18,9 +18,9 @@
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
     </activity>
-    <activity android:name=".MainActivity">
+    <activity android:name=".Calculator">
       <intent-filter>
-        <action android:name='warreq.kea.calc.MAIN'/>
+        <action android:name='warreq.kea.calc.CALCULATOR'/>
         <category android:name='android.intent.category.DEFAULT'/>
       </intent-filter>
     </activity>

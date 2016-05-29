@@ -22,7 +22,7 @@ public class SplashActivity extends Activity {
         if (firstLaunch) {
             firstLaunch = false;
             setupSplash();
-            App.loadAsynchronously("warreq.kea.calc.MainActivity",
+            App.loadAsynchronously("warreq.kea.calc.Calculator",
                                    new Runnable() {
                                        @Override
                                        public void run() {
@@ -45,7 +45,7 @@ public class SplashActivity extends Activity {
     }
 
     public void proceed() {
-        startActivity(new Intent("warreq.kea.calc.MAIN"));
+        startActivity(new Intent("warreq.kea.calc.CALCULATOR"));
         finish();
     }
 

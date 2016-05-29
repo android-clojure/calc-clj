@@ -1,5 +1,5 @@
-(ns warreq.kea.calc.calc-test
-  (:require [warreq.kea.calc.calc :refer [rpn]])
+(ns warreq.kea.calc.math-test
+  (:require [warreq.kea.calc.math :refer [rpn]])
   (:use clojure.test))
 
 (deftest simple
