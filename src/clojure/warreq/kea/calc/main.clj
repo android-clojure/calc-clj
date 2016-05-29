@@ -1,6 +1,7 @@
 (ns warreq.kea.calc.main
   (:require [neko.activity :refer [defactivity set-content-view!]]
             [neko.ui :refer [config]]
+            [neko.ui.traits :refer [deftrait]]
             [neko.notify :refer [toast]]
             [neko.intent :refer [intent]]
             [neko.resource :as res]
@@ -9,8 +10,10 @@
             [neko.threading :refer [on-ui]]
             [warreq.kea.calc.util :as u]
             [warreq.kea.calc.calc :as calc])
-  (:import android.widget.EditText android.widget.TextView
-           android.graphics.Typeface android.text.InputType))
+  (:import android.widget.EditText
+           android.widget.TextView
+           android.graphics.Typeface
+           android.text.InputType))
 
 ;; We execute this function to import all subclasses of R class. This gives us
 ;; access to all application resources.
@@ -27,55 +30,47 @@
   (let [t (find-view activity ::z)]
     (config t :input-type InputType/TYPE_CLASS_NUMBER)))
 
-'(defn notify-from-edit
-   "Finds an EditText element with ID ::user-input in the given activity. Gets
-  its contents and displays them in a toast if they aren't empty. We use
-  resources declared in res/values/strings.xml."
-   [activity]
-   (let [^EditText input (.getText (find-view activity ::user-input))]
-     (toast (if (empty? input)
-              (res/get-string R$string/input_is_empty)
-              (res/get-string R$string/your_input_fmt input))
-            :long)))
-
 (def op-column
   [(u/button-element "÷" calc/op-handler)
    (u/button-element "×" calc/op-handler)
    (u/button-element "-" calc/op-handler)])
 
 (def main-layout
-  (concat
-   [:linear-layout {:orientation :vertical}
-    (u/display-element ::w {:on-long-click (fn [_] (show-stack!))})
-    (u/display-element ::x {:on-long-click (fn [_] (show-stack!))})
-    (u/display-element ::y {:on-long-click (fn [_] (show-stack!))})
-    [:edit-text {:id ::z
-                 :text-size 34.0
-                 :input-type 0
-                 :layout-height 90
-                 :typeface android.graphics.Typeface/MONOSPACE
-                 :gravity :left
-                 :layout-width :fill
-                 :on-long-click (fn [_] (toggle-edit-input (*a)))}]]
-   [[:linear-layout u/row-attributes
-     (u/button-element "CLEAR" calc/clear-handler)
-     (u/button-element "BACK" calc/backspace-handler)
-     (u/button-element "±" calc/invert-handler)
-     (u/button-element "^" calc/op-handler)]]
-   (map (fn [i]
-          (concat
-           [:linear-layout u/row-attributes]
-           (map (fn [j]
-                  (let [n (+ (* i 3) j)]
-                    (u/button-element n calc/num-handler)))
-                (range 1 4))
-           [(get op-column i)]))
-        (range 3))
-   [[:linear-layout u/row-attributes
-     (u/button-element "RET" calc/return-handler)
-     (u/button-element 0 calc/num-handler)
-     (u/button-element "." calc/num-handler)
-     (u/button-element "+" calc/op-handler)]]))
+  (do
+    (neko.ui.mapping/add-trait! :text-size :edit-text)
+    (concat
+     [:linear-layout {:orientation :vertical}
+      (u/display-element ::w {:on-long-click (fn [_] (show-stack!))})
+      (u/display-element ::x {:on-long-click (fn [_] (show-stack!))})
+      (u/display-element ::y {:on-long-click (fn [_] (show-stack!))})
+      [:edit-text {:id ::z
+                   :input-type 0
+                   :single-line true
+                   :layout-height [90 :sp]
+                   :text-size [44 :sp]
+                   :typeface android.graphics.Typeface/MONOSPACE
+                   :gravity :left
+                   :layout-width :fill
+                   :on-long-click (fn [_] (toggle-edit-input (*a)))}]]
+     [[:linear-layout u/row-attributes
+       (u/button-element "CLEAR" calc/clear-handler)
+       (u/button-element "BACK" calc/backspace-handler)
+       (u/button-element "±" calc/invert-handler)
+       (u/button-element "^" calc/op-handler)]]
+     (map (fn [i]
+            (concat
+             [:linear-layout u/row-attributes]
+             (map (fn [j]
+                    (let [n (+ (* i 3) j)]
+                      (u/button-element n calc/num-handler)))
+                  (range 1 4))
+             [(get op-column i)]))
+          (range 3))
+     [[:linear-layout u/row-attributes
+       (u/button-element "RET" calc/return-handler)
+       (u/button-element 0 calc/num-handler)
+       (u/button-element "." calc/num-handler)
+       (u/button-element "+" calc/op-handler)]])))
 
 (defactivity warreq.kea.calc.MainActivity
   :key :main
@@ -89,7 +84,7 @@
                   ^TextView y (find-view (*a) ::y)
                   ^TextView x (find-view (*a) ::x)
                   ^TextView w (find-view (*a) ::w)]
-              (add-watch calc/error :error
+              (add-watch calc/err :error
                          (fn [key atom old new]
                            (u/vibrate! 500)
                            (toast ^String new)))

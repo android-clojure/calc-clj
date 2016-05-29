@@ -9,7 +9,7 @@
 
 (def stack (atom '()))
 
-(def error (atom ""))
+(def err (atom ""))
 
 (defn rpn
   "Evaluate an expression composed in Reverse Polish Notation and return the
@@ -29,7 +29,7 @@
 (defn floating-division [x y]
   (if (not= ^BigDecimal y BigDecimal/ZERO)
     (.divide ^BigDecimal x ^BigDecimal y java.math.RoundingMode/HALF_UP)
-    (do (reset! error "Cannot divide by 0.") nil)))
+    (do (reset! err "Cannot divide by 0.") nil)))
 
 (defn op-alias [op]
   (case op
