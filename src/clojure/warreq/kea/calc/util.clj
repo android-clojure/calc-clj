@@ -21,7 +21,7 @@
     [:button {:layout-width 0
               :layout-height :fill
               :layout-weight 1
-              :background-color Color/BLACK
+              :background-color Color/TRANSPARENT
               :typeface Typeface/MONOSPACE
               :text (str value)
               :on-click (fn [_] (vibrate! d) (handler value))}]))
@@ -72,7 +72,7 @@
    :layout-width :fill
    :layout-height 0
    :layout-weight 1
-   :background-color Color/BLACK})
+   :background-color Color/TRANSPARENT})
 
 (defelement :edit-text
   :classname android.widget.EditText
