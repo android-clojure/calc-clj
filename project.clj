@@ -22,7 +22,7 @@
                :target-path "target/debug"
                :android {:aot :all-with-unused
                          :rename-manifest-package "warreq.kea.calc.debug"
-                         :manifest-options {:app-name "Calc (debug)"}}}]
+                         :manifest-options {:app-name "Cult Calc (debug)"}}}]
              :release
              [:android-common
               {:target-path "target/release"
