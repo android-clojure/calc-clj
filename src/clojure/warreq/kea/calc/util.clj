@@ -26,14 +26,14 @@
               :text (str value)
               :on-click (fn [_] (vibrate! d) (handler value))}]))
 
-(defn operator-button
+(defn op-button
   "Build a button element for an operator."
-  [value handler]
-    [:button {:layout-width 0
-              :layout-height :fill
-              :layout-weight 1
-              :text (str value)
-              :on-click (fn [_] (vibrate! 10) (handler value))}])
+  [value handler cfg]
+  [:button (merge {:layout-width 0
+                   :layout-height :fill
+                   :layout-weight 1
+                   :text (str value)
+                   :on-click (fn [_] (vibrate! 10) (handler value))} cfg)])
 
 (defn display-element
   "Create a UI widget for displaying a right-justified text-field."

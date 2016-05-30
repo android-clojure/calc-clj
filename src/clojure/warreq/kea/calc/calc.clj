@@ -2,6 +2,7 @@
   (:require [neko.activity :refer [defactivity set-content-view!]]
             [neko.ui :refer [config get-screen-orientation]]
             [neko.intent :refer [intent]]
+            [neko.notify :refer [toast]]
             [neko.resource :as res]
             [neko.debug :refer [*a]]
             [neko.find-view :refer [find-view]]
@@ -55,7 +56,7 @@
   (when (> (count (input-text)) 0)
     (return-handler op))
   (when (>= (count (deref stack)) 2)
-    (reset! stack (math/rpn [math/op-alias op] (deref stack)))))
+    (reset! stack (math/rpn [(math/op-alias op)] (deref stack)))))
 
 (defn clear-handler
   [_]
@@ -78,11 +79,17 @@
         (.setText (input) (.substring ^String cur 1 (count cur)))
         (.setText (input) (str "-" cur))))))
 
+(defn reduce-handler
+  [op]
+  (toast (str (deref stack)))
+  (reset! stack (list (reduce (math/op-alias op) (deref stack)))))
+
 ;; Layout Definitions ===========================================================
 (def op-column
-  [(u/operator-button "÷" op-handler)
-   (u/operator-button "×" op-handler)
-   (u/operator-button "-" op-handler)])
+  [(u/op-button "÷" op-handler {})
+   (u/op-button "×" op-handler {:on-long-click (fn [_]
+                                                 (reduce-handler "×"))})
+   (u/op-button "-" op-handler {})])
 
 (defn main-layout
   [landscape?]
@@ -102,10 +109,10 @@
                    :layout-width :fill
                    :on-long-click (fn [_] (toggle-edit-input))}]]
      [[:linear-layout u/row-attributes
-       (u/operator-button "CLEAR" clear-handler)
-       (u/operator-button "BACK" backspace-handler)
-       (u/operator-button "±" invert-handler)
-       (u/operator-button "^" op-handler)]]
+       (u/op-button "CLEAR" clear-handler {})
+       (u/op-button "BACK" backspace-handler {})
+       (u/op-button "±" invert-handler {})
+       (u/op-button "^" op-handler {})]]
      (map (fn [i]
             (concat
              [:linear-layout u/row-attributes]
@@ -116,10 +123,11 @@
              [(get op-column i)]))
           (range 3))
      [[:linear-layout u/row-attributes
-       (u/operator-button "RET" return-handler)
+       (u/op-button "RET" return-handler {})
        (u/number-button 0 num-handler)
        (u/number-button "." num-handler)
-       (u/operator-button "+" op-handler)]])))
+       (u/op-button "+" op-handler {:on-long-click (fn [_]
+                                                     (reduce-handler "+"))})]])))
 
 ;; Activities ===================================================================
 (defactivity warreq.kea.calc.Calculator

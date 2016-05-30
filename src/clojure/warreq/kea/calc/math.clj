@@ -2,7 +2,8 @@
   (:require [clojure.math.numeric-tower :refer [expt]]
             [neko.notify :refer [toast]]
             [warreq.kea.calc.util :as u])
-  (:import java.math.BigDecimal))
+  (:import java.math.BigDecimal)
+  (:gen-class))
 
 (defn rpn
   "Evaluate an expression composed in Reverse Polish Notation and return the
@@ -12,7 +13,7 @@
    (rpn e '()))
   ([e s]
    (if (empty? e)
-     (first s)
+      s
      (if (number? (first e))
        (recur (rest e)
               (conj s (first e)))
