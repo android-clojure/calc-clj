@@ -2,8 +2,7 @@
   (:require [clojure.math.numeric-tower :refer [expt]]
             [neko.notify :refer [toast]]
             [warreq.kea.calc.util :as u])
-  (:import java.math.BigDecimal)
-  (:gen-class))
+  (:import java.math.BigDecimal))
 
 (defn rpn
   "Evaluate an expression composed in Reverse Polish Notation and return the
@@ -18,7 +17,7 @@
        (recur (rest e)
               (conj s (first e)))
        (recur (rest e)
-              (conj (drop 2 s) (eval (conj (reverse (take 2 s)) (first e)))))))))
+              (conj (drop 2 s) (reduce (first e) (reverse (take 2 s)))))))))
 
 (defn floating-division [x y]
   (if (not= ^BigDecimal y BigDecimal/ZERO)
@@ -31,5 +30,5 @@
     "^" expt
     "÷" floating-division
     "×" *
-    (resolve (symbol op))))
-
+    "+" +
+    "-" -))

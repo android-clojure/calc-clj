@@ -2,7 +2,6 @@
   (:require [neko.activity :refer [defactivity set-content-view!]]
             [neko.ui :refer [config get-screen-orientation]]
             [neko.intent :refer [intent]]
-            [neko.notify :refer [toast]]
             [neko.resource :as res]
             [neko.debug :refer [*a]]
             [neko.find-view :refer [find-view]]
@@ -81,7 +80,6 @@
 
 (defn reduce-handler
   [op]
-  (toast (str (deref stack)))
   (reset! stack (list (reduce (math/op-alias op) (deref stack)))))
 
 ;; Layout Definitions ===========================================================
