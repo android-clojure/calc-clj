@@ -103,7 +103,7 @@
       [:edit-text {:id ::z
                    :input-type 0
                    :single-line true
-                   :layout-height (if landscape? [30 :dp] [52 :dp])
+                   :layout-height (if landscape? [34 :dp] [64 :dp])
                    :text-size (if landscape? [22 :sp] [44 :sp])
                    :typeface android.graphics.Typeface/MONOSPACE
                    :gravity :left

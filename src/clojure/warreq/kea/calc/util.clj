@@ -71,7 +71,8 @@
   {:orientation :horizontal
    :layout-width :fill
    :layout-height 0
-   :layout-weight 1})
+   :layout-weight 1
+   :background-color Color/BLACK})
 
 (defelement :edit-text
   :classname android.widget.EditText
