@@ -1,13 +1,13 @@
 (ns warreq.kea.calc.math
   (:require [clojure.math.numeric-tower :refer [expt]]
-            [warreq.kea.calc.util :as u]
-            [neko.notify :refer [toast]])
+            [neko.notify :refer [toast]]
+            [warreq.kea.calc.util :as u])
   (:import java.math.BigDecimal))
 
 (defn rpn
   "Evaluate an expression composed in Reverse Polish Notation and return the
-  result. `rpn` may optionally take a stack as a separate parameter, which may
-  contain a partially resolved expression."
+  result. `rpn` may optionally take a stack-based representation of an expression
+  as a secondary parameter."
   ([e]
    (rpn e '()))
   ([e s]

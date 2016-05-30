@@ -18,8 +18,6 @@
 (res/import-all)
 
 ;; Calculator state =============================================================
-(def expression (atom []))
-
 (def stack (atom '()))
 
 (defn ^android.widget.EditText input
@@ -57,17 +55,11 @@
   (when (> (count (input-text)) 0)
     (return-handler op))
   (when (>= (count (deref stack)) 2)
-    (swap! expression conj (math/op-alias op))
-    (when-let [result (math/rpn (apply list (deref expression)) (deref stack))]
-      (reset! expression [result])
-      (reset! stack (drop 2 (deref stack)))
-      (swap! stack conj (first (deref expression)))
-      (reset! expression []))))
+    (reset! stack (math/rpn [math/op-alias op] (deref stack)))))
 
 (defn clear-handler
   [_]
   (.setText (input) "")
-  (reset! expression [])
   (reset! stack '()))
 
 (defn backspace-handler
