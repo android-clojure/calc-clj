@@ -13,7 +13,8 @@
 
   :dependencies [[org.clojure-android/clojure "1.7.0-r2"]
                  [org.clojure/math.numeric-tower "0.0.4"]
-                 [neko/neko "4.0.0-alpha5"]]
+                 [neko/neko "4.0.0-alpha5"]
+                 [me.grantland/autofittextview "0.2.1" :extension "aar"]]
   :profiles {:default [:dev]
 
              :dev
@@ -39,13 +40,14 @@
              [:release
               {:dependencies ^:replace [[org.skummet/clojure "1.7.0-r1"]
                                         [org.clojure/math.numeric-tower "0.0.4"]
-                                        [neko/neko "4.0.0-alpha5"]]
+                                        [neko/neko "4.0.0-alpha5"]
+                                        [me.grantland/autofittextview "0.2.1" :extension "aar"]]
                :exclusions [[org.clojure/clojure]
                             [org.clojure-android/clojure]]
                :jvm-opts ["-Dclojure.compile.ignore-lean-classes=true"]
                :global-vars ^:replace {clojure.core/*warn-on-reflection* true}
                :android {:lean-compile true
-                         :proguard-execute true
+                         :proguard-execute false
                          :proguard-conf-path "build/proguard-minify.cfg"}}]}
 
   :android {;; Specify the path to the Android SDK directory.

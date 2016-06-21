@@ -1,10 +1,35 @@
 (ns warreq.kea.calc.util
   (:require [neko.context :refer [get-service]]
             [neko.ui.mapping :refer [defelement]]
+            [neko.ui.traits :refer [deftrait]]
             [neko.find-view :refer [find-view]])
   (:import android.graphics.Typeface
            android.view.inputmethod.EditorInfo
-           android.graphics.Color))
+           android.graphics.Color
+           me.grantland.widget.AutofitTextView))
+
+(deftrait :min-text-size
+  "Takes `:min-text-size` attribute which should be an integer in scaled pixels,
+  and uses that to know the smallest size the widget may be transformed to."
+  [^android.widget.TextView wdg, {:keys [min-text-size]} _]
+  (.setMinTextSize wdg min-text-size))
+
+(deftrait :max-text-size
+  "Takes `:max-text-size` attribute which should be an integer in scaled pixels,
+  and uses that to know the largest size the widget may be transformed to."
+  [^android.widget.TextView wdg, {:keys [max-text-size]} _]
+  (.setMaxTextSize wdg max-text-size))
+
+(defelement :edit-text
+  :classname android.widget.EditText
+  :inherits :text-view
+  :values {:number      EditorInfo/TYPE_CLASS_NUMBER
+           :text        EditorInfo/TYPE_CLASS_TEXT})
+
+(defelement :autofit-text
+  :classname me.grantland.widget.AutofitTextView
+  :inherits :text-view
+  :traits [:min-text-size :max-text-size])
 
 (defn vibrate!
   "Vibrate phone for n milliseconds. Convenience function for avoiding use of
@@ -12,6 +37,18 @@
   [n]
   (let [vibrator (cast android.os.Vibrator (get-service :vibrator))]
     (.vibrate ^android.os.Vibrator vibrator n)))
+
+(defn screen-height
+  []
+  (let [wm (cast android.view.WindowManager (get-service :window))
+        display (.getDefaultDisplay wm)]
+    (.getHeight display)))
+
+(defn screen-width
+  []
+  (let [wm (cast android.view.WindowManager (get-service :window))
+        display (.getDefaultDisplay wm)]
+    (.getWidth display)))
 
 (defn number-button
   "Build a button element for a number."
@@ -38,31 +75,43 @@
 (defn display-element
   "Create a UI widget for displaying a right-justified text-field."
   [id cfg]
-  [:text-view (merge {:id id
-                      :text-size [44 :sp]
-                      :layout-height [48 :dp]
-                      :typeface Typeface/MONOSPACE
-                      :gravity :right
-                      :layout-width :fill}
-                     cfg)])
+  [:linear-layout {:orientation :vertical
+                   :layout-width :fill
+                   :layout-height [(/ (screen-height) 15) :dip]}
+   [:autofit-text (merge {:id id
+                          :min-text-size 10
+                          :max-text-size (/ (screen-height) 16)
+                          :layout-height :wrap-content
+                          :layout-width :fill
+                          :single-line true
+                          :max-lines 1
+                          :typeface Typeface/MONOSPACE
+                          :gravity :right}
+                         cfg)]])
 
 (defn display-element-landscape
-  "Create a UI widget for displaying a right-justified text-field, landscape."
+  "Create a UI widget for displaying a right-justified text-field, in landscape."
   [id cfg]
-  [:text-view (merge {:id id
-                      :text-size [22 :sp]
-                      :layout-height [24 :dp]
-                      :typeface Typeface/MONOSPACE
-                      :gravity :right
-                      :layout-width :fill}
-                     cfg)])
+  [:linear-layout {:orientation :vertical
+                   :layout-width :fill
+                   :layout-height [(/ (screen-height) 15) :dip]}
+   [:autofit-text (merge {:id id
+                          :min-text-size 10
+                          :max-text-size (/ (screen-height) 16)
+                          :layout-height :wrap-content
+                          :layout-width :fill
+                          :single-line true
+                          :max-lines 1
+                          :typeface Typeface/MONOSPACE
+                          :gravity :right}
+                         cfg)]])
 
 (defn label-element
   "Create a UI widget for displaying a left-justified label."
   [id cfg]
   [:text-view (merge {:id id
                       :text-size [22 :sp]
-                      :layout-height [60 :dp]
+                      :layout-height [60 :sp]
                       :gravity :left
                       :layout-width :wrap-content}
                      cfg)])
@@ -73,9 +122,3 @@
    :layout-height 0
    :layout-weight 1
    :background-color Color/TRANSPARENT})
-
-(defelement :edit-text
-  :classname android.widget.EditText
-  :inherits :text-view
-  :values {:number      EditorInfo/TYPE_CLASS_NUMBER
-           :text        EditorInfo/TYPE_CLASS_TEXT})

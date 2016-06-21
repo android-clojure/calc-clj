@@ -12,7 +12,8 @@
            android.os.Bundle
            android.widget.TextView
            android.graphics.Typeface
-           android.text.InputType))
+           android.text.InputType
+           me.grantland.widget.AutofitHelper))
 
 ;; We execute this function to import all subclasses of R class. This gives us
 ;; access to all application resources.
@@ -21,7 +22,7 @@
 ;; Calculator state =============================================================
 (def stack (atom '()))
 
-(defn ^android.widget.EditText input
+(defn input
   "Fetch the Input EditText field."
   []
   (find-view (*a) ::z))
@@ -34,7 +35,7 @@
 (defn toggle-edit-input
   "Enable numeric input to the Input widget via the device's keyboard."
   []
-  (config (input) :input-type InputType/TYPE_CLASS_NUMBER))
+  (config ^android.widget.EditText (input) :input-type InputType/TYPE_CLASS_NUMBER))
 
 (defn show-stack! []
   (let [a (*a)]
@@ -92,21 +93,25 @@
 
 (defn main-layout
   [landscape?]
-  (let [disp (if landscape? u/display-element-landscape u/display-element)]
+  (let [disp (if landscape? u/display-element-landscape u/display-element)
+        size (if landscape? (/ (u/screen-width) 20) (/ (u/screen-height) 10))]
     (concat
      [:linear-layout {:orientation :vertical}
       (disp ::w {:on-long-click (fn [_] (show-stack!))})
       (disp ::x {:on-long-click (fn [_] (show-stack!))})
       (disp ::y {:on-long-click (fn [_] (show-stack!))})
-      [:edit-text {:id ::z
-                   :input-type 0
-                   :single-line true
-                   :layout-height (if landscape? [48 :dp] [68 :dp])
-                   :text-size (if landscape? [22 :sp] [42 :sp])
-                   :typeface android.graphics.Typeface/MONOSPACE
-                   :gravity :left
-                   :layout-width :fill
-                   :on-long-click (fn [_] (toggle-edit-input))}]]
+      [:linear-layout {:orientation :vertical
+                       :layout-width :fill
+                       :layout-height [size :dip]}
+       [:edit-text {:id ::z
+                    :input-type 0
+                    :gravity :bottom
+                    :single-line true
+                    :max-lines 1
+                    :layout-height :wrap-content
+                    :typeface android.graphics.Typeface/MONOSPACE
+                    :layout-width :fill
+                    :on-long-click (fn [_] (toggle-edit-input))}]]]
      [[:linear-layout u/row-attributes
        (u/op-button "CLEAR" clear-handler {})
        (u/op-button "BACK" backspace-handler {})
@@ -140,16 +145,22 @@
             (neko.debug/keep-screen-on this)
             (let [landscape? (= (get-screen-orientation) :landscape)]
               (on-ui
-               (set-content-view! (*a) (main-layout landscape?))))
-            (let [^TextView z (find-view (*a) ::z)
-                  ^TextView y (find-view (*a) ::y)
-                  ^TextView x (find-view (*a) ::x)
-                  ^TextView w (find-view (*a) ::w)]
-              (add-watch stack :stack
-                         (fn [key atom old new]
-                           (.setText y (str (first new)))
-                           (.setText x (str (second new)))
-                           (.setText w (str (nth new 2 "")))))))
+               (set-content-view! (*a) (main-layout landscape?)))
+              (let [^TextView z (find-view (*a) ::z)
+                    ^TextView y (find-view (*a) ::y)
+                    ^TextView x (find-view (*a) ::x)
+                    ^TextView w (find-view (*a) ::w)
+                    size (if landscape?
+                           (/ (u/screen-height) 25)
+                           (/ (u/screen-height) 15))]
+                (-> (AutofitHelper/create z)
+                    (.setMinTextSize 10.0)
+                    (.setMaxTextSize size))
+                (add-watch stack :stack
+                           (fn [key atom old new]
+                             (.setText y (str (first new)))
+                             (.setText x (str (second new)))
+                             (.setText w (str (nth new 2 ""))))))))
   (onSaveInstanceState [this bundle]
                        (let [s (java.util.ArrayList. (map str (deref stack)))]
                          (.putStringArrayList bundle "stack" s))
