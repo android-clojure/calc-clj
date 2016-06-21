@@ -9,6 +9,7 @@
             [warreq.kea.calc.util :as u]
             [warreq.kea.calc.math :as math])
   (:import android.widget.EditText
+           android.os.Bundle
            android.widget.TextView
            android.graphics.Typeface
            android.text.InputType))
@@ -100,8 +101,8 @@
       [:edit-text {:id ::z
                    :input-type 0
                    :single-line true
-                   :layout-height (if landscape? [34 :dp] [64 :dp])
-                   :text-size (if landscape? [22 :sp] [44 :sp])
+                   :layout-height (if landscape? [48 :dp] [68 :dp])
+                   :text-size (if landscape? [22 :sp] [42 :sp])
                    :typeface android.graphics.Typeface/MONOSPACE
                    :gravity :left
                    :layout-width :fill
@@ -133,6 +134,9 @@
   :features [:no-title]
   (onCreate [this bundle]
             (.superOnCreate this bundle)
+            (when (not= nil bundle)
+              (let [s (map bigdec (.getStringArrayList bundle "stack"))]
+                (reset! stack s)))
             (neko.debug/keep-screen-on this)
             (let [landscape? (= (get-screen-orientation) :landscape)]
               (on-ui
@@ -146,6 +150,10 @@
                            (.setText y (str (first new)))
                            (.setText x (str (second new)))
                            (.setText w (str (nth new 2 "")))))))
+  (onSaveInstanceState [this bundle]
+                       (let [s (java.util.ArrayList. (map str (deref stack)))]
+                         (.putStringArrayList bundle "stack" s))
+                       (.superOnSaveInstanceState this bundle))
   (onResume [this]
             (.superOnResume this)
             ;; Force an event to make the watchers update
