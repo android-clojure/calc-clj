@@ -12,7 +12,7 @@
    (rpn e '()))
   ([e s]
    (if (empty? e)
-      s
+     s
      (if (number? (first e))
        (recur (rest e)
               (conj s (first e)))
@@ -20,10 +20,12 @@
               (conj (drop 2 s) (reduce (first e) (reverse (take 2 s)))))))))
 
 (defn floating-division [x y]
-  (if (not= ^BigDecimal y BigDecimal/ZERO)
-    (.divide ^BigDecimal x ^BigDecimal y 2 java.math.RoundingMode/HALF_EVEN)
-    (do (u/vibrate! 500)
-        (toast "Cannot divide by 0."))))
+  (let [x (bigdec x)
+        y (bigdec y)]
+    (if (not= y BigDecimal/ZERO)
+      (.divide x y 2 java.math.RoundingMode/HALF_EVEN)
+      (do (u/vibrate! 500)
+          (toast "Cannot divide by 0.")))))
 
 (defn op-alias [op]
   (case op
